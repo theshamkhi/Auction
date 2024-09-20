@@ -1,0 +1,42 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+  <div class="container-listing ">
+      <h2>Create a New Listing</h2>
+    <br>
+    <form method="post" class="needs-validation" novalidate>
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="{{ form.title.id_for_label }}" class="form-label">Title</label>
+        <input type="text" class="form-control" id="{{ form.title.id_for_label }}" name="{{ form.title.name }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+        <textarea class="form-control" id="{{ form.description.id_for_label }}" name="{{ form.description.name }}" required></textarea>
+      </div>
+      <div class="mb-3">
+        <label for="{{ form.image_url.id_for_label }}" class="form-label">Image URL</label>
+        <input type="url" class="form-control" id="{{ form.image_url.id_for_label }}" name="{{ form.image_url.name }}">
+      </div>
+      <div class="row mb-3">
+        <div class="col-6">
+          <label for="{{ form.starting_bid.id_for_label }}" class="form-label">Starting Bid</label>
+          <input type="number" step="0.01" class="form-control" id="{{ form.starting_bid.id_for_label }}" name="{{ form.starting_bid.name }}" required>
+        </div>
+        <div class="col-6">
+          <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+          <select class="form-select" id="{{ form.category.id_for_label }}" name="{{ form.category.name }}" required>
+            <option value="" disabled selected>Select a category</option>
+            {% for category in form.category.field.queryset %}
+              <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Create Listing</button>
+    </form>
+  </div>
+
+{% endblock %}
+

@@ -1,0 +1,112 @@
+{% extends "auctions/layout.html" %}
+{% load static %}
+
+{% block body %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+
+      <div class="col-md-5">
+        <div class="card mb-4 costum-card">
+          <div class="position-relative">
+            {% if listing.image_url %}
+            <img src="{{ listing.image_url }}" alt="{{ listing.title }}" class="card-img-top">
+            {% else %}
+            <img src="{% static 'auctions/none.jpeg' %}" class="card-img-top">
+            {% endif %}
+            <form method="post" action="{% url 'toggle_watchlist' listing.id %}" class="position-absolute top-0 start-0 m-2">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-light watchlist-button">
+                {% if in_watchlist %}
+                  <i class="fas fa-check"></i>
+                {% else %}
+                  <i class="fas fa-plus"></i>
+                {% endif %}
+              </button>
+            </form>
+            {% if is_owner and listing.is_active %}
+              <form method="post" class="position-absolute bottom-0 end-0 m-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger" name="close_auction">Close Auction</button>
+              </form>
+            {% endif %}
+          </div>
+        </div>
+              {% if not listing.is_active %}
+                  {% if user == listing.winner %}
+                      <p class="alert alert-success">Congratulations! You have won this auction.</p>
+                  {% else %}
+                      <p class="alert alert-secondary">This auction has ended.</p>
+                  {% endif %}
+              {% endif %}
+
+              {% if comments %}
+                <h3 class="mb-3">Comments</h3>
+                <hr>
+                <ul class="list-group">
+                  {% for comment in comments %}
+                  <li class="list-group-item">
+                    <strong>{{ comment.user }}</strong>: {{ comment.text }}
+                  </li>
+                  {% endfor %}
+                </ul>
+              <div style="margin-bottom: 20px;"></div>
+              {% else %}
+              <h3 class="mb-3">No Comment</h3>
+              <hr>
+              {% endif %}
+      </div>
+
+      <div class="col-md-5">
+            <div class="card mb-4">
+              <div class="card-body">
+                <h1 class="card-title">{{ listing.title }}</h1>
+                <p class="card-text text-muted">{{ listing.category }}</p>
+                <p class="card-text">{{ listing.description }}</p>
+                <hr>
+                <h2 class="card-title">Starting Bid:</h2>
+                <p class="card-text h4">${{ listing.starting_bid }}</p>
+                <hr>
+                <h2 class="card-title">Current Bid:</h2>
+                {% if listing.current_bid %}
+                  <p class="card-text h4">${{ listing.current_bid }}</p>
+                {% else %}
+                  <p class="card-text text-muted">No bid has been received</p>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if user.is_authenticated %}
+              <div class="card mb-2">
+                <div class="card-body">
+                  <h3 class="mb-4">Place a Bid</h3>
+                  <form method="post">
+                    {% csrf_token %}
+                    {% if error_message %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error_message }}
+                    </div>
+                    {% endif %}          
+                    <div class="input-group mb-3">
+                      <input type="number" step="0.01" min="{{ listing.current_bid|add:'0.01' }}" name="bid_amount" class="form-control" placeholder="Enter Your Bid">
+                      <div class="input-group-append" style="margin-left: 10px;">
+                        <button type="submit" class="btn btn-success">Place Bid</button>
+                      </div>
+                    </div>
+                  </form>
+
+                  <h3 class="mb-4">Leave a Comment</h3>
+                  <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                      <textarea name="comment_text" class="form-control" placeholder="Add a Comment"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+      </div>
+  </div>
+
+</div>
+{% endblock %}
